@@ -292,7 +292,6 @@ func BenchmarkMultiGetSetBlock_256_Shard(b *testing.B) {
 	runWithShards(benchmarkMultiGetSetBlock, b, 256)
 }
 
-
 func GetSet[K comparable, V any](m ConcurrentMap[K, V], finished chan struct{}) (set func(key K, value V), get func(key K, value V)) {
 	return func(key K, value V) {
 			for i := 0; i < 10; i++ {
@@ -339,5 +338,26 @@ func BenchmarkKeys(b *testing.B) {
 	}
 	for i := 0; i < b.N; i++ {
 		m.Keys()
+	}
+}
+
+func BenchmarkGenericStruct(b *testing.B) {
+	m := NewGeneric[Animal, int]()
+	// Insert 10000 elements.
+	for i := 0; i < 10000; i++ {
+		m.Set(Animal{strconv.Itoa(i)}, i)
+	}
+	for i := 0; i < b.N; i++ {
+		m.Items()
+	}
+}
+func BenchmarkGenericInt(b *testing.B) {
+	m := NewGeneric[int, Animal]()
+	// Insert 10000 elements.
+	for i := 0; i < 10000; i++ {
+		m.Set(i, Animal{strconv.Itoa(i)})
+	}
+	for i := 0; i < b.N; i++ {
+		m.Items()
 	}
 }

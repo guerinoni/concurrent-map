@@ -13,6 +13,15 @@ type Stringer interface {
 	comparable
 }
 
+// NewGeneric creates a new concurrent map with a generic key type.
+func NewGeneric[K comparable, V any]() ConcurrentMap[K, V] {
+	return create[K, V](genericfnv32[K])
+}
+
+func genericfnv32[K comparable](key K) uint32 {
+	return fnv32(fmt.Sprintf("%v", key))
+}
+
 // A "thread" safe map of type string:Anything.
 // To avoid lock bottlenecks this map is dived to several (SHARD_COUNT) map shards.
 type ConcurrentMap[K comparable, V any] struct {
