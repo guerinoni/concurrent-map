@@ -2,7 +2,6 @@ package cmap
 
 import (
 	"encoding/json"
-	"hash/fnv"
 	"sort"
 	"strconv"
 	"testing"
@@ -13,7 +12,7 @@ type Animal struct {
 }
 
 func TestMapCreation(t *testing.T) {
-	m := New[string]()
+	m := New[string, string]()
 	if m.shards == nil {
 		t.Error("map is null.")
 	}
@@ -24,7 +23,7 @@ func TestMapCreation(t *testing.T) {
 }
 
 func TestInsert(t *testing.T) {
-	m := New[Animal]()
+	m := New[string, Animal]()
 	elephant := Animal{"elephant"}
 	monkey := Animal{"monkey"}
 
@@ -37,7 +36,7 @@ func TestInsert(t *testing.T) {
 }
 
 func TestInsertAbsent(t *testing.T) {
-	m := New[Animal]()
+	m := New[string, Animal]()
 	elephant := Animal{"elephant"}
 	monkey := Animal{"monkey"}
 
@@ -48,7 +47,7 @@ func TestInsertAbsent(t *testing.T) {
 }
 
 func TestGet(t *testing.T) {
-	m := New[Animal]()
+	m := New[string, Animal]()
 
 	// Get a missing element.
 	val, ok := m.Get("Money")
@@ -76,7 +75,7 @@ func TestGet(t *testing.T) {
 }
 
 func TestHas(t *testing.T) {
-	m := New[Animal]()
+	m := New[string, Animal]()
 
 	// Get a missing element.
 	if m.Has("Money") == true {
@@ -92,7 +91,7 @@ func TestHas(t *testing.T) {
 }
 
 func TestRemove(t *testing.T) {
-	m := New[Animal]()
+	m := New[string, Animal]()
 
 	monkey := Animal{"monkey"}
 	m.Set("monkey", monkey)
@@ -118,7 +117,7 @@ func TestRemove(t *testing.T) {
 }
 
 func TestRemoveCb(t *testing.T) {
-	m := New[Animal]()
+	m := New[string, Animal]()
 
 	monkey := Animal{"monkey"}
 	m.Set("monkey", monkey)
@@ -206,7 +205,7 @@ func TestRemoveCb(t *testing.T) {
 }
 
 func TestPop(t *testing.T) {
-	m := New[Animal]()
+	m := New[string, Animal]()
 
 	monkey := Animal{"monkey"}
 	m.Set("monkey", monkey)
@@ -239,7 +238,7 @@ func TestPop(t *testing.T) {
 }
 
 func TestCount(t *testing.T) {
-	m := New[Animal]()
+	m := New[string, Animal]()
 	for i := 0; i < 100; i++ {
 		m.Set(strconv.Itoa(i), Animal{strconv.Itoa(i)})
 	}
@@ -250,7 +249,7 @@ func TestCount(t *testing.T) {
 }
 
 func TestIsEmpty(t *testing.T) {
-	m := New[Animal]()
+	m := New[string, Animal]()
 
 	if m.IsEmpty() == false {
 		t.Error("new map should be empty")
@@ -264,7 +263,7 @@ func TestIsEmpty(t *testing.T) {
 }
 
 func TestIterator(t *testing.T) {
-	m := New[Animal]()
+	m := New[string, Animal]()
 
 	// Insert 100 elements.
 	for i := 0; i < 100; i++ {
@@ -288,7 +287,7 @@ func TestIterator(t *testing.T) {
 }
 
 func TestBufferedIterator(t *testing.T) {
-	m := New[Animal]()
+	m := New[string, Animal]()
 
 	// Insert 100 elements.
 	for i := 0; i < 100; i++ {
@@ -312,7 +311,7 @@ func TestBufferedIterator(t *testing.T) {
 }
 
 func TestClear(t *testing.T) {
-	m := New[Animal]()
+	m := New[string, Animal]()
 
 	// Insert 100 elements.
 	for i := 0; i < 100; i++ {
@@ -327,7 +326,7 @@ func TestClear(t *testing.T) {
 }
 
 func TestIterCb(t *testing.T) {
-	m := New[Animal]()
+	m := New[string, Animal]()
 
 	// Insert 100 elements.
 	for i := 0; i < 100; i++ {
@@ -345,7 +344,7 @@ func TestIterCb(t *testing.T) {
 }
 
 func TestItems(t *testing.T) {
-	m := New[Animal]()
+	m := New[string, Animal]()
 
 	// Insert 100 elements.
 	for i := 0; i < 100; i++ {
@@ -360,7 +359,7 @@ func TestItems(t *testing.T) {
 }
 
 func TestConcurrent(t *testing.T) {
-	m := New[int]()
+	m := New[string, int]()
 	ch := make(chan int)
 	const iterations = 1000
 	var a [iterations]int
@@ -424,7 +423,7 @@ func TestJsonMarshal(t *testing.T) {
 		SHARD_COUNT = 32
 	}()
 	expected := "{\"a\":1,\"b\":2}"
-	m := New[int]()
+	m := New[string, int]()
 	m.Set("a", 1)
 	m.Set("b", 2)
 	j, err := json.Marshal(m)
@@ -439,7 +438,7 @@ func TestJsonMarshal(t *testing.T) {
 }
 
 func TestKeys(t *testing.T) {
-	m := New[Animal]()
+	m := New[string, Animal]()
 
 	// Insert 100 elements.
 	for i := 0; i < 100; i++ {
@@ -457,26 +456,12 @@ func TestMInsert(t *testing.T) {
 		"elephant": {"elephant"},
 		"monkey":   {"monkey"},
 	}
-	m := New[Animal]()
+	m := New[string, Animal]()
 	m.MSet(animals)
 
 	if m.Count() != 2 {
 		t.Error("map should contain exactly two elements.")
 	}
-}
-
-func TestFnv32(t *testing.T) {
-	key := []byte("ABC")
-
-	hasher := fnv.New32()
-	_, err := hasher.Write(key)
-	if err != nil {
-		t.Errorf(err.Error())
-	}
-	if fnv32(string(key)) != hasher.Sum32() {
-		t.Errorf("Bundled fnv32 produced %d, expected result from hash/fnv32 is %d", fnv32(string(key)), hasher.Sum32())
-	}
-
 }
 
 func TestUpsert(t *testing.T) {
@@ -493,7 +478,7 @@ func TestUpsert(t *testing.T) {
 		return valueInMap
 	}
 
-	m := New[Animal]()
+	m := New[string, Animal]()
 	m.Set("marine", dolphin)
 	m.Upsert("marine", whale, cb)
 	m.Upsert("predator", tiger, cb)
@@ -515,7 +500,7 @@ func TestUpsert(t *testing.T) {
 }
 
 func TestKeysWhenRemoving(t *testing.T) {
-	m := New[Animal]()
+	m := New[string, Animal]()
 
 	// Insert 100 elements.
 	Total := 100
@@ -528,7 +513,7 @@ func TestKeysWhenRemoving(t *testing.T) {
 	for i := 0; i < Num; i++ {
 		go func(c *ConcurrentMap[string, Animal], n int) {
 			c.Remove(strconv.Itoa(n))
-		}(&m, i)
+		}(m, i)
 	}
 	keys := m.Keys()
 	for _, k := range keys {
@@ -539,7 +524,7 @@ func TestKeysWhenRemoving(t *testing.T) {
 }
 
 func TestUnDrainedIter(t *testing.T) {
-	m := New[Animal]()
+	m := New[string, Animal]()
 	// Insert 100 elements.
 	Total := 100
 	for i := 0; i < Total; i++ {
@@ -591,7 +576,7 @@ func TestUnDrainedIter(t *testing.T) {
 }
 
 func TestUnDrainedIterBuffered(t *testing.T) {
-	m := New[Animal]()
+	m := New[string, Animal]()
 	// Insert 100 elements.
 	Total := 100
 	for i := 0; i < Total; i++ {
@@ -643,7 +628,7 @@ func TestUnDrainedIterBuffered(t *testing.T) {
 }
 
 func TestMapGenericInt(t *testing.T) {
-	m := NewGeneric[int, string]()
+	m := New[int, string]()
 	if m.shards == nil {
 		t.Error("map is null.")
 	}
@@ -673,7 +658,7 @@ func TestMapGenericStruct(t *testing.T) {
 	type TmpStruct struct {
 		Name string
 	}
-	m := NewGeneric[TmpStruct, string]()
+	m := New[TmpStruct, string]()
 	if m.shards == nil {
 		t.Error("map is null.")
 	}
@@ -697,5 +682,165 @@ func TestMapGenericStruct(t *testing.T) {
 	m.Remove(TmpStruct{"monkey"})
 	if m.Count() != 0 {
 		t.Error("Expecting count to be zero once item was removed.")
+	}
+}
+func Test_genHasher(t *testing.T) {
+	hasher := genHasher[string]()
+	if hasher("499") != hasher("499") {
+		t.Error("Expected hasher(\"499\") to equal itself")
+	}
+	if hasher("499") == hasher("500") {
+		t.Error("Expected hasher(\"499\") to not equal hasher(\"500\")")
+	}
+
+	hasher1 := genHasher[int]()
+	if hasher1(499) != hasher1(499) {
+		t.Error("Expected hasher1(499) to equal itself")
+	}
+	if hasher1(499) == hasher1(500) {
+		t.Error("Expected hasher1(499) to not equal hasher1(500)")
+	}
+
+	hasher2 := genHasher[uint]()
+	if hasher2(499) != hasher2(499) {
+		t.Error("Expected hasher2(499) to equal itself")
+	}
+	if hasher2(499) == hasher2(500) {
+		t.Error("Expected hasher2(499) to not equal hasher2(500)")
+	}
+
+	hasher3 := genHasher[uintptr]()
+	if hasher3(128) != hasher3(128) {
+		t.Error("Expected hasher3(128) to equal itself")
+	}
+	if hasher3(128) == hasher3(129) {
+		t.Error("Expected hasher3(128) to not equal hasher3(129)")
+	}
+
+	hasher4 := genHasher[byte]()
+	if hasher4(128) != hasher4(128) {
+		t.Error("Expected hasher4(128) to equal itself")
+	}
+	if hasher4(128) == hasher4(129) {
+		t.Error("Expected hasher4(128) to not equal hasher4(129)")
+	}
+
+	hasher5 := genHasher[int8]()
+	if hasher5(100) != hasher5(100) {
+		t.Error("Expected hasher5(100) to equal itself")
+	}
+	if hasher5(100) == hasher5(101) {
+		t.Error("Expected hasher5(100) to not equal hasher5(101)")
+	}
+
+	hasher6 := genHasher[uint8]()
+	if hasher6(128) != hasher6(128) {
+		t.Error("Expected hasher6(128) to equal itself")
+	}
+	if hasher6(128) == hasher6(129) {
+		t.Error("Expected hasher6(128) to not equal hasher6(129)")
+	}
+
+	hasher7 := genHasher[int16]()
+	if hasher7(100) != hasher7(100) {
+		t.Error("Expected hasher7(100) to equal itself")
+	}
+	if hasher7(100) == hasher7(101) {
+		t.Error("Expected hasher7(100) to not equal hasher7(101)")
+	}
+
+	hasher8 := genHasher[uint16]()
+	if hasher8(128) != hasher8(128) {
+		t.Error("Expected hasher8(128) to equal itself")
+	}
+	if hasher8(128) == hasher8(129) {
+		t.Error("Expected hasher8(128) to not equal hasher8(129)")
+	}
+
+	hasher9 := genHasher[int32]()
+	if hasher9(100) != hasher9(100) {
+		t.Error("Expected hasher9(100) to equal itself")
+	}
+	if hasher9(100) == hasher9(101) {
+		t.Error("Expected hasher9(100) to not equal hasher9(101)")
+	}
+
+	hasher10 := genHasher[uint32]()
+	if hasher10(128) != hasher10(128) {
+		t.Error("Expected hasher10(128) to equal itself")
+	}
+	if hasher10(128) == hasher10(129) {
+		t.Error("Expected hasher10(128) to not equal hasher10(129)")
+	}
+
+	hasher11 := genHasher[float32]()
+	if hasher11(128) != hasher11(128) {
+		t.Error("Expected hasher11(128) to equal itself")
+	}
+	if hasher11(128) == hasher11(129) {
+		t.Error("Expected hasher11(128) to not equal hasher11(129)")
+	}
+
+	hasher12 := genHasher[int64]()
+	if hasher12(100) != hasher12(100) {
+		t.Error("Expected hasher12(100) to equal itself")
+	}
+	if hasher12(100) == hasher12(101) {
+		t.Error("Expected hasher12(100) to not equal hasher12(101)")
+	}
+
+	hasher13 := genHasher[uint64]()
+	if hasher13(128) != hasher13(128) {
+		t.Error("Expected hasher13(128) to equal itself")
+	}
+	if hasher13(128) == hasher13(129) {
+		t.Error("Expected hasher13(128) to not equal hasher13(129)")
+	}
+
+	hasher14 := genHasher[float64]()
+	if hasher14(128) != hasher14(128) {
+		t.Error("Expected hasher14(128) to equal itself")
+	}
+	if hasher14(128) == hasher14(129) {
+		t.Error("Expected hasher14(128) to not equal hasher14(129)")
+	}
+
+	hasher15 := genHasher[complex64]()
+	if hasher15(complex(1, 2)) != hasher15(complex(1, 2)) {
+		t.Error("Expected hasher15(complex(1, 2)) to equal itself")
+	}
+	if hasher15(complex(1, 2)) == hasher15(complex(1, 3)) {
+		t.Error("Expected hasher15(complex(1, 2)) to not equal hasher15(complex(1, 3))")
+	}
+
+	hasher16 := genHasher[complex128]()
+	if hasher16(complex(1, 2)) != hasher16(complex(1, 2)) {
+		t.Error("Expected hasher16(complex(1, 2)) to equal itself")
+	}
+	if hasher16(complex(1, 2)) == hasher16(complex(1, 3)) {
+		t.Error("Expected hasher16(complex(1, 2)) to not equal hasher16(complex(1, 3))")
+	}
+
+	type S struct {
+		a int
+	}
+	hasher17 := genHasher[*S]()
+	s1 := &S{a: 1}
+	s2 := &S{a: 2}
+	if hasher17(s1) != hasher17(s1) {
+		t.Error("Expected hasher17(s1) to equal itself")
+	}
+	if hasher17(s1) == hasher17(s2) {
+		t.Error("Expected hasher17(s1) to not equal hasher17(s2)")
+	}
+
+	hasher18 := genHasher[chan int]()
+	ch1 := make(chan int)
+	ch2 := make(chan int)
+	if hasher18(ch1) != hasher18(ch1) {
+		t.Error("Expected hasher18(ch1) to equal itself")
+	}
+	if hasher18(ch1) == hasher18(ch2) {
+		t.Error("Expected hasher18(ch1) to not equal hasher18(ch2)")
 	}
 }
