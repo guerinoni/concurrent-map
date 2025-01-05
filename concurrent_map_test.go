@@ -578,6 +578,7 @@ func TestMapGenericInt(t *testing.T) {
 		t.Error("Expecting count to be zero once item was removed.")
 	}
 }
+
 func TestMapGenericStruct(t *testing.T) {
 	type TmpStruct struct {
 		Name string
@@ -608,6 +609,7 @@ func TestMapGenericStruct(t *testing.T) {
 		t.Error("Expecting count to be zero once item was removed.")
 	}
 }
+
 func Test_genHasher(t *testing.T) {
 	hasher := genHasher[string]()
 	if hasher("499") != hasher("499") {

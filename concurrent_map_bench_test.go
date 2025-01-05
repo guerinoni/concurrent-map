@@ -35,6 +35,7 @@ func BenchmarkItemsInteger(b *testing.B) {
 		m.Items()
 	}
 }
+
 func directSharding(key uint32) uintptr {
 	return uintptr(key)
 }
@@ -137,12 +138,15 @@ func BenchmarkMultiInsertDifferentSyncMap(b *testing.B) {
 func BenchmarkMultiInsertDifferent_1_Shard(b *testing.B) {
 	runWithShards(benchmarkMultiInsertDifferent, b, 1)
 }
+
 func BenchmarkMultiInsertDifferent_16_Shard(b *testing.B) {
 	runWithShards(benchmarkMultiInsertDifferent, b, 16)
 }
+
 func BenchmarkMultiInsertDifferent_32_Shard(b *testing.B) {
 	runWithShards(benchmarkMultiInsertDifferent, b, 32)
 }
+
 func BenchmarkMultiInsertDifferent_256_Shard(b *testing.B) {
 	runWithShards(benchmarkMultiGetSetDifferent, b, 256)
 }
@@ -236,12 +240,15 @@ func BenchmarkMultiGetSetDifferentSyncMap(b *testing.B) {
 func BenchmarkMultiGetSetDifferent_1_Shard(b *testing.B) {
 	runWithShards(benchmarkMultiGetSetDifferent, b, 1)
 }
+
 func BenchmarkMultiGetSetDifferent_16_Shard(b *testing.B) {
 	runWithShards(benchmarkMultiGetSetDifferent, b, 16)
 }
+
 func BenchmarkMultiGetSetDifferent_32_Shard(b *testing.B) {
 	runWithShards(benchmarkMultiGetSetDifferent, b, 32)
 }
+
 func BenchmarkMultiGetSetDifferent_256_Shard(b *testing.B) {
 	runWithShards(benchmarkMultiGetSetDifferent, b, 256)
 }
@@ -283,12 +290,15 @@ func BenchmarkMultiGetSetBlockSyncMap(b *testing.B) {
 func BenchmarkMultiGetSetBlock_1_Shard(b *testing.B) {
 	runWithShards(benchmarkMultiGetSetBlock, b, 1)
 }
+
 func BenchmarkMultiGetSetBlock_16_Shard(b *testing.B) {
 	runWithShards(benchmarkMultiGetSetBlock, b, 16)
 }
+
 func BenchmarkMultiGetSetBlock_32_Shard(b *testing.B) {
 	runWithShards(benchmarkMultiGetSetBlock, b, 32)
 }
+
 func BenchmarkMultiGetSetBlock_256_Shard(b *testing.B) {
 	runWithShards(benchmarkMultiGetSetBlock, b, 256)
 }
@@ -352,6 +362,7 @@ func BenchmarkGenericStruct(b *testing.B) {
 		m.Items()
 	}
 }
+
 func BenchmarkGenericInt(b *testing.B) {
 	m := New[int, Animal]()
 	// Insert 10000 elements.
