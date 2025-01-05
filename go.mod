@@ -1,3 +1,3 @@
-module github.com/orcaman/concurrent-map/v2
+module github.com/guerinoni/concurrent-map
 
-go 1.18
+go 1.23.4
