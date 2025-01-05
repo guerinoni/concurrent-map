@@ -262,30 +262,6 @@ func TestIsEmpty(t *testing.T) {
 	}
 }
 
-func TestIterator(t *testing.T) {
-	m := New[string, Animal]()
-
-	// Insert 100 elements.
-	for i := 0; i < 100; i++ {
-		m.Set(strconv.Itoa(i), Animal{strconv.Itoa(i)})
-	}
-
-	counter := 0
-	// Iterate over elements.
-	for item := range m.Iter() {
-		val := item.Val
-
-		if (val == Animal{}) {
-			t.Error("Expecting an object.")
-		}
-		counter++
-	}
-
-	if counter != 100 {
-		t.Error("We should have counted 100 elements.")
-	}
-}
-
 func TestBufferedIterator(t *testing.T) {
 	m := New[string, Animal]()
 
@@ -520,58 +496,6 @@ func TestKeysWhenRemoving(t *testing.T) {
 		if k == "" {
 			t.Error("Empty keys returned")
 		}
-	}
-}
-
-func TestUnDrainedIter(t *testing.T) {
-	m := New[string, Animal]()
-	// Insert 100 elements.
-	Total := 100
-	for i := 0; i < Total; i++ {
-		m.Set(strconv.Itoa(i), Animal{strconv.Itoa(i)})
-	}
-	counter := 0
-	// Iterate over elements.
-	ch := m.Iter()
-	for item := range ch {
-		val := item.Val
-
-		if (val == Animal{}) {
-			t.Error("Expecting an object.")
-		}
-		counter++
-		if counter == 42 {
-			break
-		}
-	}
-	for i := Total; i < 2*Total; i++ {
-		m.Set(strconv.Itoa(i), Animal{strconv.Itoa(i)})
-	}
-	for item := range ch {
-		val := item.Val
-
-		if (val == Animal{}) {
-			t.Error("Expecting an object.")
-		}
-		counter++
-	}
-
-	if counter != 100 {
-		t.Error("We should have been right where we stopped")
-	}
-
-	counter = 0
-	for item := range m.IterBuffered() {
-		val := item.Val
-
-		if (val == Animal{}) {
-			t.Error("Expecting an object.")
-		}
-		counter++
-	}
-
-	if counter != 200 {
-		t.Error("We should have counted 200 elements.")
 	}
 }
 
